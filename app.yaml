@@ -1,4 +1,4 @@
-application: channel-test
+application: tara-cafe
 version: 1
 runtime: python
 api_version: 1
