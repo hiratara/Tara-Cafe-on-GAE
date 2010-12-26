@@ -8,6 +8,10 @@ class Member(db.Model):
         return str(self.key())
 
     @classmethod
+    def by_client_id(klass, client_id):
+        return klass.get(client_id)
+
+    @classmethod
     def clean_members(klass):
         import datetime
         that_time = datetime.datetime.now() \
