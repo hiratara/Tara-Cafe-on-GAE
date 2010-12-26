@@ -13,22 +13,14 @@ class MainPage(webapp.RequestHandler):
       ))
 
 class GetToken(webapp.RequestHandler):
-    sequence = 0
-
     def __init__(self, *args, **kwargs):
         super(GetToken, self).__init__(*args, **kwargs)
 
     def post(self):
-        GetToken.sequence += 1
-
         member = model.Member()
-        member.client_id = unicode(GetToken.sequence)
         member.put()
 
-        import logging
-        logging.debug(member.client_id)
-
-        token = channel.create_channel(member.client_id)
+        token = channel.create_channel(member.client_id())
         self.response.out.write(django.utils.simplejson.dumps({
             'token' : token
             }))
@@ -36,7 +28,10 @@ class GetToken(webapp.RequestHandler):
 class OpenedPage(webapp.RequestHandler):
     def post(self):
         for member in model.Member.all():
-            channel.send_message(member.client_id, "an message")
+            try:
+                channel.send_message(member.client_id(), "an message")
+            except channel.InvalidChannelClientIdError:
+                pass  # may be an expired client ID.
 
 def app(environ, start_response):
     start_response('200 OK', [('Content-Type', 'text/plain')])
