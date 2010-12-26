@@ -3,13 +3,20 @@ from google.appengine.api import channel
 from google.appengine.ext import webapp
 import google.appengine.ext.webapp.util
 import google.appengine.ext.webapp.template
+import django.utils.simplejson
 
 class MainPage(webapp.RequestHandler):
     def get(self):
-      token = channel.create_channel("ThisIsMyKey")
       self.response.out.write(webapp.template.render(
-              'index.html', {'token': token}
-              ))
+          'index.html', None
+      ))
+
+class GetToken(webapp.RequestHandler):
+    def post(self):
+        token = channel.create_channel("ThisIsMyKey")
+        self.response.out.write(django.utils.simplejson.dumps({
+            'token' : token
+            }))
 
 class OpenedPage(webapp.RequestHandler):
     def post(self):
@@ -21,6 +28,7 @@ def app(environ, start_response):
 
 application = webapp.WSGIApplication([
     ('/', MainPage), 
+    ('/get_token', GetToken),
     ('/opened', OpenedPage), 
     ], debug=True)
 
