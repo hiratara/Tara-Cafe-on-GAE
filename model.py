@@ -10,10 +10,3 @@ class Member(db.Model):
     @classmethod
     def by_client_id(klass, client_id):
         return klass.get(client_id)
-
-    @classmethod
-    def clean_members(klass):
-        import datetime
-        that_time = datetime.datetime.now() \
-                    + datetime.timedelta(seconds=-60 * 3)
-        return db.delete(Member.all().filter('date <', that_time))
