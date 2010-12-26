@@ -26,11 +26,13 @@ class GetToken(webapp.RequestHandler):
             'clientID' : member.client_id(),
             }))
 
-class OpenedPage(webapp.RequestHandler):
+class Say(webapp.RequestHandler):
     def post(self):
+        saying = self.request.get("saying")
+
         for member in model.Member.all():
             try:
-                channel.send_message(member.client_id(), "an message")
+                channel.send_message(member.client_id(), saying)
             except channel.InvalidChannelClientIdError:
                 pass  # may be an expired client ID.
 
@@ -47,7 +49,7 @@ application = webapp.WSGIApplication([
     ('/', MainPage), 
     ('/get_token', GetToken),
     ('/ping', Pong),
-    ('/opened', OpenedPage), 
+    ('/say', Say), 
     ], debug=True)
 
 def main():
