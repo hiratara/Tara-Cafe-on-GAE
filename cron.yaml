@@ -1,0 +1,4 @@
+cron:
+- description: clean up members
+  url: /tasks/clean_members
+  schedule: every 1 minutes
