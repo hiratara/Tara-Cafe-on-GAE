@@ -43,10 +43,6 @@ class Pong(webapp.RequestHandler):
         member.put()
         self.response.out.write("PONG\n")
 
-def app(environ, start_response):
-    start_response('200 OK', [('Content-Type', 'text/plain')])
-    return ["Hello world!\n"]
-
 application = webapp.WSGIApplication([
     ('/', MainPage), 
     ('/get_token', GetToken),
