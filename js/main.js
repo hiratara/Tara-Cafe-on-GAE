@@ -14,7 +14,9 @@ jQuery(function ($) {
         socket.onclose = function () {alert("closed");};
     }, "json");
 
-    $("#say").click(function () {
+    $("#say").submit(function (e) {
         $.post("/say", {saying : $("#saying").val()}); 
+        $("#saying").val('');
+        return false;
     });
 });
