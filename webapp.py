@@ -59,10 +59,11 @@ class GetToken(webapp.RequestHandler):
 class Say(webapp.RequestHandler):
     def post(self):
         saying = self.request.get("saying")
+        user = users.get_current_user()
 
         for member in model.Member.all():
             try:
-                channel.send_message(member.client_id(), saying)
+                channel.send_message(member.client_id(), "%s : %s" % (user.nickname(), saying))
             except channel.InvalidChannelClientIdError:
                 pass  # may be an expired client ID.
 
