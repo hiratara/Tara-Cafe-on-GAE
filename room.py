@@ -11,10 +11,15 @@ import login
 class MainPage(webapp.RequestHandler):
     @login.openid_required
     def get(self, room_id):
+        room = model.Room.get_by_key_name(room_id)
+        if not room:
+            self.redirect(self.request.relative_url('', True))
+            return
+
         self.response.out.write(webapp.template.render(
             'index.html', {
                 "logout_url" : users.create_logout_url("/"),
-                "room_id"    : room_id,
+                "room_id"    : room.key().name(),
             }
         ))
 
@@ -23,7 +28,9 @@ class GetToken(webapp.RequestHandler):
         super(GetToken, self).__init__(*args, **kwargs)
 
     def post(self, room_id):
-        member = model.Member()
+        room = model.Room.get_by_key_name(room_id)
+
+        member = model.Member(parent=room)
         member.put()
 
         token = channel.create_channel(member.client_id())
@@ -34,10 +41,12 @@ class GetToken(webapp.RequestHandler):
 
 class Say(webapp.RequestHandler):
     def post(self, room_id):
+        room = model.Room.get_by_key_name(room_id)
+
         saying = self.request.get("saying")
         user = users.get_current_user()
 
-        for member in model.Member.all():
+        for member in model.Member.all().ancestor(room):
             try:
                 channel.send_message(member.client_id(), "%s : %s" % (user.nickname(), saying))
             except channel.InvalidChannelClientIdError:

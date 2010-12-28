@@ -4,8 +4,8 @@ from google.appengine.api import channel
 import model
 
 class CleanMembers(webapp.RequestHandler):
-    def notify_all(self, message):
-        for member in model.Member.all():
+    def notify_all(self, room, message):
+        for member in model.Member.all().ancestor(room):
             try:
                 channel.send_message(member.client_id(), message)
             except channel.InvalidChannelClientIdError:
@@ -17,8 +17,10 @@ class CleanMembers(webapp.RequestHandler):
                     + datetime.timedelta(seconds=-60 * 3)
         for member in model.Member.all().filter('date <', that_time):
             deleting_id = member.client_id()
+            room = member.parent()
             member.delete()
-            self.notify_all("deleted %s" % deleting_id)
+
+            self.notify_all(room, "Deleted %s." % deleting_id)
 
         self.response.out.write("Deleted.\n")
 
