@@ -10,10 +10,11 @@ import login
 
 class MainPage(webapp.RequestHandler):
     @login.openid_required
-    def get(self):
+    def get(self, room_id):
       self.response.out.write(webapp.template.render(
           'index.html', {
-              "logout_url" : users.create_logout_url("/")
+              "logout_url" : users.create_logout_url("/"),
+              "room_id"    : room_id,
               }
       ))
 
@@ -21,7 +22,7 @@ class GetToken(webapp.RequestHandler):
     def __init__(self, *args, **kwargs):
         super(GetToken, self).__init__(*args, **kwargs)
 
-    def post(self):
+    def post(self, room_id):
         member = model.Member()
         member.put()
 
@@ -32,7 +33,7 @@ class GetToken(webapp.RequestHandler):
             }))
 
 class Say(webapp.RequestHandler):
-    def post(self):
+    def post(self, room_id):
         saying = self.request.get("saying")
         user = users.get_current_user()
 
@@ -43,7 +44,7 @@ class Say(webapp.RequestHandler):
                 pass  # may be an expired client ID.
 
 class Pong(webapp.RequestHandler):
-    def post(self):
+    def post(self, room_id):
         import datetime
         client_id = self.request.get('id')
         member = model.Member.by_client_id(client_id)
@@ -52,10 +53,10 @@ class Pong(webapp.RequestHandler):
         self.response.out.write("PONG\n")
 
 application = webapp.WSGIApplication([
-    ('/', MainPage), 
-    ('/get_token', GetToken),
-    ('/ping', Pong),
-    ('/say', Say), 
+    (r'/room/(\w+)', MainPage), 
+    (r'/room/(\w+)/get_token', GetToken),
+    (r'/room/(\w+)/ping', Pong),
+    (r'/room/(\w+)/say', Say), 
     ], debug=True)
 
 def main():

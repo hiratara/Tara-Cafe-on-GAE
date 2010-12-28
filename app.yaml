@@ -11,5 +11,5 @@ handlers:
 - url: /tasks/.*
   script: tasks.py
   login: admin
-- url: /.*
-  script: webapp.py
+- url: /room/.*
+  script: room.py

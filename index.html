@@ -1,8 +1,14 @@
 <html>
 <head>
-  <script src="js/jquery-1.4.4.min.js"></script>
+  <script src="/js/jquery-1.4.4.min.js"></script>
   <script src='/_ah/channel/jsapi'></script>
-  <script src='js/main.js'></script>
+  <script src='/js/main.js'></script>
+  <script type="text/javascript">
+    jQuery(function ($) {
+        var room = new taracafe.Room({{room_id}});
+        room.run();
+    });
+  </script>
 </head>
 <body>
 <form id="say">
