@@ -53,7 +53,6 @@ class Pong(webapp.RequestHandler):
 
 application = webapp.WSGIApplication([
     ('/', MainPage), 
-    ('/ahogehoge/.+', MainPage), 
     ('/get_token', GetToken),
     ('/ping', Pong),
     ('/say', Say), 
