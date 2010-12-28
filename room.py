@@ -17,7 +17,7 @@ class MainPage(webapp.RequestHandler):
             return
 
         self.response.out.write(webapp.template.render(
-            'index.html', {
+            'room.html', {
                 "logout_url" : users.create_logout_url("/"),
                 "room_id"    : room.key().name(),
             }
