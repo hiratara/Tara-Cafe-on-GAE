@@ -18,3 +18,6 @@ def set_cookie(res, key, val, days=None):
 
 def del_cookie(res, key):
     set_cookie(res, key, "", -1)
+
+def get_cookie(req, key):
+    return req.cookies.get(key)

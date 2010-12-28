@@ -24,7 +24,7 @@ class LoginForm(webapp.RequestHandler):
 
 class LoginPost(webapp.RequestHandler):
     def post(self):
-        original_url = self.request.cookies.get("original_url")
+        original_url = gaeutil.get_cookie(self.request, 'original_url')
         gaeutil.del_cookie(self.response, 'original_url')
 
         self.redirect(
