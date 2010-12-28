@@ -24,8 +24,14 @@ class CleanMembers(webapp.RequestHandler):
 
         self.response.out.write("Deleted.\n")
 
+class AddRoom(webapp.RequestHandler):
+    def get(self, room_id):
+        model.Room(key_name=room_id).put()
+        self.response.out.write("Added %s." % room_id)
+
 application = webapp.WSGIApplication([
-    ('/tasks/clean_members', CleanMembers),
+    (r'/tasks/clean_members', CleanMembers),
+    (r'/tasks/add_room/(\w+)', AddRoom),
     ], debug=True)
 
 def main():
