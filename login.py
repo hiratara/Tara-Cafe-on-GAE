@@ -6,6 +6,16 @@ import gaeutil
 __all__ = ['openid_required']
 
 def openid_required(handler_method):
+    u"""The decorator to force to login with OpenID.
+
+        For example:
+            import login
+
+            class MainPage(webapp.RequestHandler):
+                @login.openid_required
+                def get(self): pass
+
+     """
     def check_login(self, *args):
         if users.get_current_user():
             return handler_method(self, *args)
