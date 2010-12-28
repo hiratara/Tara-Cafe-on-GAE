@@ -3,7 +3,7 @@ from google.appengine.ext import webapp
 import google.appengine.ext.webapp.util
 import gaeutil
 
-__all__ = ['login_required']
+__all__ = ['openid_required']
 
 def openid_required(handler_method):
     def check_login(self, *args):
