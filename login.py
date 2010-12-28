@@ -5,6 +5,12 @@ import gaeutil
 
 __all__ = ['openid_required']
 
+def redirectToForm(handler, original_url):
+    gaeutil.set_cookie(
+        handler.response, 'original_url', original_url
+    )
+    handler.redirect("/login")
+
 def openid_required(handler_method):
     u"""The decorator to force to login with OpenID.
 
@@ -20,11 +26,13 @@ def openid_required(handler_method):
         if users.get_current_user():
             return handler_method(self, *args)
 
-        gaeutil.set_cookie(self.response, 'original_url', self.request.url)
-        self.redirect("/login")
-        return
+        return redirectToForm(self, self.request.url)
 
     return check_login
+
+class RedirectToForm(webapp.RequestHandler):
+    def get(self):
+        return redirectToForm(self, self.request.get("continue"))
 
 class LoginForm(webapp.RequestHandler):
     def get(self):
@@ -45,6 +53,7 @@ class LoginPost(webapp.RequestHandler):
             )
 
 application = webapp.WSGIApplication([
+    ('/_ah/login_required', RedirectToForm), 
     ('/login', LoginForm), 
     ('/login/post', LoginPost), 
     ], debug=True)
