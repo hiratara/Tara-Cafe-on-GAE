@@ -6,6 +6,8 @@ api_version: 1
 handlers:
 - url: /js
   static_dir: js
+- url: /login(/.*|$)
+  script: login.py
 - url: /tasks/.*
   script: tasks.py
   login: admin

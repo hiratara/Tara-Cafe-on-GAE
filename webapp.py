@@ -6,36 +6,11 @@ import google.appengine.ext.webapp.util
 import google.appengine.ext.webapp.template
 import django.utils.simplejson
 import model
-import gaeutil
-
-class LoginForm(webapp.RequestHandler):
-    def get(self):
-        self.response.out.write(webapp.template.render(
-            'login.html', {
-                "post_url" : self.request.relative_url("login/post", True),
-                }
-            ))
-
-class LoginPost(webapp.RequestHandler):
-    def post(self):
-        original_url = self.request.cookies.get("original_url")
-        gaeutil.del_cookie(self.response, 'original_url')
-
-        self.redirect(
-            users.create_login_url(
-                original_url,
-                federated_identity=self.request.get("open_id"),
-                )
-            )
+import login
 
 class MainPage(webapp.RequestHandler):
+    @login.openid_required
     def get(self):
-      if not users.get_current_user():
-          gaeutil.set_cookie(self.response, 'original_url', self.request.url)
-          self.redirect(
-              self.request.relative_url("login", True)
-              )
-          return
       self.response.out.write(webapp.template.render(
           'index.html', {
               "logout_url" : users.create_logout_url("/")
@@ -78,8 +53,6 @@ class Pong(webapp.RequestHandler):
 
 application = webapp.WSGIApplication([
     ('/', MainPage), 
-    ('/login', LoginForm), 
-    ('/login/post', LoginPost), 
     ('/ahogehoge/.+', MainPage), 
     ('/get_token', GetToken),
     ('/ping', Pong),
