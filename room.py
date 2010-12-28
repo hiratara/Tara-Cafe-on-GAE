@@ -11,12 +11,12 @@ import login
 class MainPage(webapp.RequestHandler):
     @login.openid_required
     def get(self, room_id):
-      self.response.out.write(webapp.template.render(
-          'index.html', {
-              "logout_url" : users.create_logout_url("/"),
-              "room_id"    : room_id,
-              }
-      ))
+        self.response.out.write(webapp.template.render(
+            'index.html', {
+                "logout_url" : users.create_logout_url("/"),
+                "room_id"    : room_id,
+            }
+        ))
 
 class GetToken(webapp.RequestHandler):
     def __init__(self, *args, **kwargs):
