@@ -7,9 +7,50 @@ import google.appengine.ext.webapp.template
 import django.utils.simplejson
 import model
 import login
+import gaeutil
 
-class MainPage(webapp.RequestHandler):
-    @login.openid_required
+class UserBase(object):
+    def user_id(self): raise NotImplementedError
+    def nickname(self): raise NotImplementedError
+
+class User(UserBase):
+    def __init__(self, user):
+        self.user = user
+
+    def user_id(self):
+        return self.user.federated_identity()
+
+    def nickname(self):
+        return self.user.nickname()
+
+class GuestUser(UserBase):
+    def __init__(self, guest_id):
+        self.guest_id = guest_id
+
+    def user_id(self):
+        return self.guest_id
+
+    def nickname(self):
+        return self.user_id()
+
+class RoomBase(webapp.RequestHandler):
+    def get_user(self):
+        user = users.get_current_user()
+        if user: 
+            return User(user)
+
+        guest_id = gaeutil.get_cookie(self.request, "guest_id")
+        if not guest_id:
+            import datetime, hashlib
+            guest_id = hashlib.sha1("%s %s" % (
+                datetime.datetime.now().isoformat(),
+                self.request.remote_addr
+            )).hexdigest()
+            gaeutil.set_cookie(self.response, "guest_id", guest_id)
+
+        return GuestUser(guest_id)
+
+class MainPage(RoomBase):
     def get(self, room_id):
         room = model.Room.get_by_key_name(room_id)
         if not room:
@@ -23,7 +64,7 @@ class MainPage(webapp.RequestHandler):
             }
         ))
 
-class GetToken(webapp.RequestHandler):
+class GetToken(RoomBase):
     def __init__(self, *args, **kwargs):
         super(GetToken, self).__init__(*args, **kwargs)
 
@@ -39,12 +80,12 @@ class GetToken(webapp.RequestHandler):
             'clientID' : member.client_id(),
             }))
 
-class Say(webapp.RequestHandler):
+class Say(RoomBase):
     def post(self, room_id):
         room = model.Room.get_by_key_name(room_id)
 
         saying = self.request.get("saying")
-        user = users.get_current_user()
+        user = self.get_user()
 
         for member in model.Member.all().ancestor(room):
             try:
@@ -52,7 +93,7 @@ class Say(webapp.RequestHandler):
             except channel.InvalidChannelClientIdError:
                 pass  # may be an expired client ID.
 
-class Pong(webapp.RequestHandler):
+class Pong(RoomBase):
     def post(self, room_id):
         import datetime
         client_id = self.request.get('id')
