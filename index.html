@@ -1,0 +1,9 @@
+<html>
+<head>
+</head>
+<body>
+{% for room in rooms %}
+<a href="/room/{{ room.key.name }}">room{{ room.key.name }}</a><br>
+{% endfor %}
+</body>
+</html>

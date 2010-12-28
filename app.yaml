@@ -13,3 +13,5 @@ handlers:
   login: admin
 - url: /room/.*
   script: room.py
+- url: /.*
+  script: index.py
