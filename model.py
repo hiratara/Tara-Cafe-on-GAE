@@ -13,4 +13,4 @@ class Member(db.Model):
 
     @classmethod
     def by_client_id(klass, client_id):
-        return klass.all().filter("client_id =", client_id)
+        return klass.all().filter("client_id =", client_id).get()
