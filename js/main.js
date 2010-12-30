@@ -1,9 +1,17 @@
 (function ($) {
      var Room = function (room_id) {
          this.room_id = room_id;
+         this.onopen = function () {};
      };
      Room.prototype = {
+         setNickname : function (nickname) {
+             $.post(
+                 this.room_id + "/set_name", 
+                 {nickname : nickname}
+             ); 
+         },
          run : function () {
+            var self = this;
             var room_id = this.room_id;
 
             $.post(room_id + "/get_token", function (got) {
@@ -13,6 +21,8 @@
                     setInterval(function () {
                         $.post(room_id + "/ping", {id : got.clientID}); 
                     }, 1000 * 60);
+
+                    self.onopen();
                 };
                 socket.onmessage = function (m) {
                     var data = $.parseJSON(m.data);
@@ -44,10 +54,7 @@
             });
 
              $("#nickname").blur(function () {
-                $.post(
-                    room_id + "/set_name", 
-                    {nickname : $(this).val()}
-                ); 
+                 self.setNickname($(this).val());
              });
          }
      };

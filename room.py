@@ -53,6 +53,16 @@ class RoomBase(webapp.RequestHandler):
 
 class MainPage(RoomBase):
     def get(self, room_id):
+        self.response.out.write(webapp.template.render(
+            'name_form.html', None
+        ))
+
+    def post(self, room_id):
+        nickname = self.request.get("nickname", None)
+        if not nickname:
+            self.redirect(self.request.url)  # redirect by GET
+            return
+
         room = model.Room.get_by_key_name(room_id)
         if not room:
             self.redirect(self.request.relative_url('', True))
@@ -62,6 +72,7 @@ class MainPage(RoomBase):
             'room.html', {
                 "logout_url" : users.create_logout_url("/"),
                 "room_id"    : room.key().name(),
+                "nickname"   : nickname,
             }
         ))
 

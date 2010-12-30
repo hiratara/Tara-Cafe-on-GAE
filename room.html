@@ -7,6 +7,9 @@
     jQuery(function ($) {
         var room = new taracafe.Room({{room_id}});
         room.run();
+        room.onopen = function () {
+            room.setNickname("{{nickname|escape}}");
+        };
     });
   </script>
   <style type="text/css">
@@ -16,7 +19,7 @@
   </style>
 </head>
 <body>
-お名前<input type="text" id="nickname"></input>
+お名前<input type="text" id="nickname" value="{{nickname|escape}}"></input>
 
 <form id="say">
 <input type="text" id="saying"></input>
