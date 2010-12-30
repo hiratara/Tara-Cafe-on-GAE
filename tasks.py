@@ -17,6 +17,7 @@ class CleanMembers(webapp.RequestHandler):
 
             room_service = service.RoomService(room)
             room_service.say(None, "Deleted %s." % deleting_id)
+            room_service.notify_all({"event" : "member_changed"})
 
         self.response.out.write("Deleted.\n")
 

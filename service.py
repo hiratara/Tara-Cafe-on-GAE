@@ -41,6 +41,7 @@ class RoomService(object):
                 new_member.put()
 
                 member = new_member
+                self.notify_all({"event" : "member_changed"})
 
             return member, token
 
@@ -85,8 +86,11 @@ class RoomService(object):
             user.user_id(),
             parent=self.room,
         )
+        old_name = member.nickname
         member.nickname = new_name
         member.put()
+
+        self.notify_all({"event" : "member_changed"})
 
     def ping(self, client_id):
         member = model.Member.by_client_id(client_id)

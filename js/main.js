@@ -14,6 +14,12 @@
                  {nickname : nickname}
              ); 
          },
+         updateMemberList : function () {
+            $.post(this.room_id + "/get_members", function (members) {
+                members = $.map(members, function (m) { return esc(m.name); });
+                $("#members").html(members.join("、"));
+            }, "json");
+         },
          run : function () {
             var self = this;
             var room_id = this.room_id;
@@ -45,16 +51,15 @@
                             ")</span>",
                             "</div>"
                         ].join(""));
+                    } else if (data.event == "member_changed") {
+                        self.updateMemberList();
                     }
                 };
                 socket.onerror = function () {alert("error");};
                 socket.onclose = function () {alert("closed");};
             }, "json");
 
-            $.post(room_id + "/get_members", function (members) {
-                members = $.map(members, function (m) { return esc(m.name); });
-                $("#members").html(members.join("、"));
-            }, "json");
+            this.updateMemberList();
 
             $("#say").submit(function (e) {
                 $.post(room_id + "/say", {saying : $("#saying").val()}); 
