@@ -15,7 +15,15 @@
                     }, 1000 * 60);
                 };
                 socket.onmessage = function (m) {
-                    $("#logs").prepend("<div>" + m.data + "</div>");
+                    var data = $.parseJSON(m.data);
+                    if (data.event == "said") {
+                        $("#logs").prepend([
+                            "<div>",
+                            "<span>", data.from, ": </span>",
+                            "<span>", data.content, "</span>",
+                            "</div>"
+                        ].join(""));
+                    }
                 };
                 socket.onerror = function () {alert("error");};
                 socket.onclose = function () {alert("closed");};

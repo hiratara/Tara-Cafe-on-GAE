@@ -1,5 +1,6 @@
 import model
 from google.appengine.api import channel
+import django.utils.simplejson
 
 class RoomService(object):
     def __init__(self, room):
@@ -13,18 +14,27 @@ class RoomService(object):
 
         return member, token
 
-    def say(self, user, saying):
-        nickname = '[System]'
-        if user: nickname = user.nickname()
+    def notify_all(self, event):
+        event_json = django.utils.simplejson.dumps(event)
 
         for member in model.Member.all().ancestor(self.room):
             try:
                 channel.send_message(
                     member.client_id(), 
-                    "%s : %s" % (nickname, saying)
+                    event_json
                 )
             except channel.InvalidChannelClientIdError:
                 pass  # may be an expired client ID.
+
+    def say(self, user, saying):
+        nickname = '[System]'
+        if user: nickname = user.nickname()
+
+        self.notify_all({
+            "event"  : "said",
+            "from"   : nickname,
+            "content" : saying
+        })
 
     def ping(self, client_id):
         import datetime
