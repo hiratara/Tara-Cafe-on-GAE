@@ -1,10 +1,19 @@
 # -*- coding: utf-8 -*-
 from google.appengine.ext import db
 
-class Room(db.Model): pass
+class Room(db.Model):
+    """
+    key_name - Room name.
+    parent   - None
+    """
+    pass
 
 class Member(db.Model):
-    client_id = db.StringProperty()
+    """
+    key_name - user_id
+    parent   - Room
+    """
+    client_id = db.StringProperty()  # Unique key. (room + user + time)
     nickname = db.StringProperty()
     date = db.DateTimeProperty(auto_now_add=True)
 
