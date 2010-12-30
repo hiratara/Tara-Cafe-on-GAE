@@ -4,6 +4,7 @@ import google.appengine.ext.webapp.util
 import google.appengine.ext.webapp.template
 import model
 import service
+from google.appengine.api import users
 
 class MainPage(webapp.RequestHandler):
     def get(self):
@@ -18,7 +19,8 @@ class MainPage(webapp.RequestHandler):
 
         self.response.out.write(webapp.template.render(
             'index.html', {
-                "room_info" : room_info
+                "room_info" : room_info,
+                "logout_url" : users.create_logout_url("/"),
             }
         ))
 
