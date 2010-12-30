@@ -11,7 +11,7 @@ class CleanMembers(webapp.RequestHandler):
         that_time = datetime.datetime.now() \
                     + datetime.timedelta(seconds=-60 * 3)
         for member in model.Member.all().filter('date <', that_time):
-            deleting_id = member.client_id()
+            deleting_id = member.client_id
             room = member.parent()
             member.delete()
 
