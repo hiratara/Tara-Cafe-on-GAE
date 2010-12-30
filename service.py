@@ -6,6 +6,16 @@ import django.utils.simplejson
 import datetime
 import hashlib
 
+def delete_member(member, force=False):
+    deleting_id = member.client_id
+    room = member.parent()
+    member.delete()
+
+    room_service = RoomService(room)
+    if force: 
+        room_service.say(None, "Deleted %s." % deleting_id)
+    room_service.notify_all({"event" : "member_changed"})
+
 class RoomService(object):
     def __init__(self, room):
         self.room = room

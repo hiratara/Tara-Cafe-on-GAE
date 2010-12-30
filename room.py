@@ -70,7 +70,6 @@ class MainPage(RoomBase):
 
         self.response.out.write(webapp.template.render(
             'room.html', {
-                "logout_url" : users.create_logout_url("/"),
                 "room_id"    : room.key().name(),
                 "nickname"   : nickname,
             }
@@ -134,6 +133,21 @@ class Pong(RoomBase):
 
         self.response.out.write("PONG\n")
 
+class ExitPage(RoomBase):
+    def get(self, room_id):
+        room = model.Room.get_by_key_name(room_id)
+        user = self.get_user()
+
+        member = model.Member.get_by_key_name(
+            user.user_id(),
+            parent=room,
+        )
+        service.delete_member(member)
+
+        self.response.out.write(webapp.template.render(
+            'exit.html', None
+        ))
+
 application = webapp.WSGIApplication([
     (r'/room/(\w+)', MainPage), 
     (r'/room/(\w+)/get_token', GetToken),
@@ -141,6 +155,7 @@ application = webapp.WSGIApplication([
     (r'/room/(\w+)/get_members', GetMembers),
     (r'/room/(\w+)/ping', Pong),
     (r'/room/(\w+)/say', Say), 
+    (r'/room/(\w+)/exit', ExitPage), 
     ], debug=True)
 
 def main():

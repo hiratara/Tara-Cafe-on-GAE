@@ -11,13 +11,7 @@ class CleanMembers(webapp.RequestHandler):
         that_time = datetime.datetime.now() \
                     + datetime.timedelta(seconds=-60 * 3)
         for member in model.Member.all().filter('date <', that_time):
-            deleting_id = member.client_id
-            room = member.parent()
-            member.delete()
-
-            room_service = service.RoomService(room)
-            room_service.say(None, "Deleted %s." % deleting_id)
-            room_service.notify_all({"event" : "member_changed"})
+            service.delete_member(member, force=True)
 
         self.response.out.write("Deleted.\n")
 
