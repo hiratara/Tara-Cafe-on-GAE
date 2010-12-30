@@ -16,6 +16,9 @@ class RoomService(object):
 
     def connect(self, user):
         def needs_transaction():
+            client_id = self.new_client_id_for(user)
+            token = channel.create_channel(client_id)
+
             current_member = model.Member.get_by_key_name(
                 user.user_id(),
                 parent=self.room,
@@ -26,18 +29,20 @@ class RoomService(object):
                     current_member.client_id, 
                     '{"event": "closed", "reason": "duplicated"}'
                 )
-                current_member.delete()
+                current_member.client_id = client_id
+                current_member.put()
 
-            client_id = self.new_client_id_for(user)
-            token = channel.create_channel(client_id)
-
-            new_member = model.Member(
-                parent=self.room, key_name=user.user_id(),
-                client_id=client_id,
+                member = current_member
+            else:
+                new_member = model.Member(
+                    parent=self.room, key_name=user.user_id(),
+                    client_id=client_id,
                 )
-            new_member.put()
+                new_member.put()
 
-            return new_member, token
+                member = new_member
+
+            return member, token
 
         member, token = db.run_in_transaction(needs_transaction)
 
