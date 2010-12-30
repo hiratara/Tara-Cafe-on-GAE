@@ -1,4 +1,8 @@
 (function ($) {
+     function esc(str) {
+        return $("<div/>").text(str).html();
+    }
+
      var Room = function (room_id) {
          this.room_id = room_id;
          this.onopen = function () {};
@@ -29,15 +33,15 @@
                     if (data.event == "said") {
                         $("#logs").prepend([
                             "<div>",
-                            "<span>", data.from, ": </span>",
-                            "<span>", data.content, "</span>",
+                            "<span>", esc(data.from), ": </span>",
+                            "<span>", esc(data.content), "</span>",
                             "</div>"
                         ].join(""));
                     } else if (data.event == "closed") {
                         $("#logs").prepend([
                             '<div class="error">',
                             "<span>closed connection(", 
-                            data.reason , 
+                            esc(data.reason) , 
                             ")</span>",
                             "</div>"
                         ].join(""));
