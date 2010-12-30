@@ -62,13 +62,26 @@ class RoomService(object):
 
     def say(self, user, saying):
         nickname = '[System]'
-        if user: nickname = user.nickname()
+        if user:
+            member = model.Member.get_by_key_name(
+                user.user_id(),
+                parent=self.room,
+            )
+            nickname = member.nickname or user.user_id()
 
         self.notify_all({
             "event"  : "said",
             "from"   : nickname,
             "content" : saying
         })
+
+    def set_name(self, user, new_name):
+        member = model.Member.get_by_key_name(
+            user.user_id(),
+            parent=self.room,
+        )
+        member.nickname = new_name
+        member.put()
 
     def ping(self, client_id):
         member = model.Member.by_client_id(client_id)

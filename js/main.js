@@ -42,6 +42,13 @@
                 $("#saying").val('');
                 return false;
             });
+
+             $("#nickname").blur(function () {
+                $.post(
+                    room_id + "/set_name", 
+                    {nickname : $(this).val()}
+                ); 
+             });
          }
      };
 

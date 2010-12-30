@@ -81,6 +81,17 @@ class GetToken(RoomBase):
             'clientID' : member.client_id,
             }))
 
+
+class SetName(RoomBase):
+    def post(self, room_id):
+        room = model.Room.get_by_key_name(room_id)
+        user = self.get_user()
+
+        room_service = service.RoomService(room)
+        room_service.set_name(user, self.request.get("nickname"))
+
+        self.response.out.write("OK\n")
+
 class Say(RoomBase):
     def post(self, room_id):
         room = model.Room.get_by_key_name(room_id)
@@ -104,6 +115,7 @@ class Pong(RoomBase):
 application = webapp.WSGIApplication([
     (r'/room/(\w+)', MainPage), 
     (r'/room/(\w+)/get_token', GetToken),
+    (r'/room/(\w+)/set_name', SetName),
     (r'/room/(\w+)/ping', Pong),
     (r'/room/(\w+)/say', Say), 
     ], debug=True)

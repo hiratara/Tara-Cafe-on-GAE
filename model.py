@@ -5,6 +5,7 @@ class Room(db.Model): pass
 
 class Member(db.Model):
     client_id = db.StringProperty()
+    nickname = db.StringProperty()
     date = db.DateTimeProperty(auto_now_add=True)
 
     @classmethod
