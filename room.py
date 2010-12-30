@@ -6,6 +6,7 @@ import google.appengine.ext.webapp.util
 import google.appengine.ext.webapp.template
 import django.utils.simplejson
 import model
+import service
 import login
 import gaeutil
 
@@ -71,10 +72,9 @@ class GetToken(RoomBase):
     def post(self, room_id):
         room = model.Room.get_by_key_name(room_id)
 
-        member = model.Member(parent=room)
-        member.put()
+        room_service = service.RoomService(room)
+        member, token = room_service.connect()
 
-        token = channel.create_channel(member.client_id())
         self.response.out.write(django.utils.simplejson.dumps({
             'token' : token,
             'clientID' : member.client_id(),
@@ -87,19 +87,17 @@ class Say(RoomBase):
         saying = self.request.get("saying")
         user = self.get_user()
 
-        for member in model.Member.all().ancestor(room):
-            try:
-                channel.send_message(member.client_id(), "%s : %s" % (user.nickname(), saying))
-            except channel.InvalidChannelClientIdError:
-                pass  # may be an expired client ID.
+        room_service = service.RoomService(room)
+        room_service.say(user, saying)
 
 class Pong(RoomBase):
     def post(self, room_id):
-        import datetime
+        room = model.Room.get_by_key_name(room_id)
         client_id = self.request.get('id')
-        member = model.Member.by_client_id(client_id)
-        member.date = datetime.datetime.now()
-        member.put()
+
+        room_service = service.RoomService(room)
+        room_service.ping(client_id)
+
         self.response.out.write("PONG\n")
 
 application = webapp.WSGIApplication([
