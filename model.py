@@ -8,6 +8,9 @@ class Member(db.Model):
     nickname = db.StringProperty()
     date = db.DateTimeProperty(auto_now_add=True)
 
+    def get_name(self):
+        return self.nickname or self.key().name()
+
     @classmethod
     def by_client_id(klass, client_id):
         return klass.all().filter("client_id =", client_id)

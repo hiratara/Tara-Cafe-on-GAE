@@ -67,7 +67,7 @@ class RoomService(object):
                 user.user_id(),
                 parent=self.room,
             )
-            nickname = member.nickname or user.user_id()
+            nickname = member.get_name()
 
         self.notify_all({
             "event"  : "said",

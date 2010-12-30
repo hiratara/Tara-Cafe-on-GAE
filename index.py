@@ -6,11 +6,17 @@ import model
 
 class MainPage(webapp.RequestHandler):
     def get(self):
-        rooms = model.Room.all()
+        room_info = []
+        for room in model.Room.all():
+            members = list(model.Member.all().ancestor(room)) # dont pass iter
+            room_info.append({
+                "room"    : room,
+                "members" : members,
+            })
 
         self.response.out.write(webapp.template.render(
             'index.html', {
-                "rooms" : rooms
+                "room_info" : room_info
             }
         ))
 

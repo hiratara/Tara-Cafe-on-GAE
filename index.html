@@ -2,8 +2,17 @@
 <head>
 </head>
 <body>
-{% for room in rooms %}
-<a href="/room/{{ room.key.name }}">room{{ room.key.name }}</a><br>
+{% for info in room_info %}
+  <a href="/room/{{ info.room.key.name|escape }}">room{{ info.room.key.name|escape }}</a>
+  {% if info.members|length %}
+    {% for member in info.members %}
+      {{ member.get_name|escape }}
+      {% if not forloop.last %}、{% endif %}
+    {% endfor %}
+  {% else %}
+  誰もいません。
+  {% endif %}
+  <br>
 {% endfor %}
 </body>
 </html>
