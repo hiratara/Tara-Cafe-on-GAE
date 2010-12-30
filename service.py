@@ -4,13 +4,15 @@ import model
 from google.appengine.api import channel
 import django.utils.simplejson
 import datetime
+import hashlib
 
 class RoomService(object):
     def __init__(self, room):
         self.room = room
 
     def new_client_id_for(self, user):
-        return user.user_id() + ' ' + datetime.datetime.now().isoformat()
+        seed = user.user_id() + ' ' + datetime.datetime.now().isoformat()
+        return hashlib.sha1(seed).hexdigest()
 
     def connect(self, user):
         def needs_transaction():
