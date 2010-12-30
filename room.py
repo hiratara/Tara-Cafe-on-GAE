@@ -19,7 +19,7 @@ class User(UserBase):
         self.user = user
 
     def user_id(self):
-        return self.user.federated_identity()
+        return self.user.federated_identity() or self.user.user_id()
 
     def nickname(self):
         return self.user.nickname()
