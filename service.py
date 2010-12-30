@@ -1,16 +1,25 @@
 import model
 from google.appengine.api import channel
 import django.utils.simplejson
+import datetime
 
 class RoomService(object):
     def __init__(self, room):
         self.room = room
 
-    def connect(self):
-        member = model.Member(parent=self.room)
+    def new_client_id_for(self, user):
+        return user.user_id() + ' ' + datetime.datetime.now().isoformat()
+
+    def connect(self, user):
+        client_id = self.new_client_id_for(user)
+
+        member = model.Member(
+            parent=self.room, key_name=user.user_id(),
+            client_id=client_id,
+        )
         member.put()
 
-        token = channel.create_channel(member.client_id())
+        token = channel.create_channel(member.client_id)
 
         return member, token
 
@@ -20,7 +29,7 @@ class RoomService(object):
         for member in model.Member.all().ancestor(self.room):
             try:
                 channel.send_message(
-                    member.client_id(), 
+                    member.client_id, 
                     event_json
                 )
             except channel.InvalidChannelClientIdError:
@@ -37,7 +46,6 @@ class RoomService(object):
         })
 
     def ping(self, client_id):
-        import datetime
         member = model.Member.by_client_id(client_id)
         member.date = datetime.datetime.now()
         member.put()
