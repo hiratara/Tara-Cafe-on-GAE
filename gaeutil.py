@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import Cookie
 import datetime
 import urllib2

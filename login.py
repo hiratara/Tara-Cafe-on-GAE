@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from google.appengine.api import users
 from google.appengine.ext import webapp
 import google.appengine.ext.webapp.util

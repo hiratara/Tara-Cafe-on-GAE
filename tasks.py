@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from google.appengine.ext import webapp
 import google.appengine.ext.webapp.util
 from google.appengine.api import channel
