@@ -23,6 +23,14 @@
                             "<span>", data.content, "</span>",
                             "</div>"
                         ].join(""));
+                    } else if (data.event == "closed") {
+                        $("#logs").prepend([
+                            '<div class="error">',
+                            "<span>closed connection(", 
+                            data.reason , 
+                            ")</span>",
+                            "</div>"
+                        ].join(""));
                     }
                 };
                 socket.onerror = function () {alert("error");};

@@ -1,3 +1,4 @@
+from google.appengine.ext import db
 import model
 from google.appengine.api import channel
 import django.utils.simplejson
@@ -11,15 +12,31 @@ class RoomService(object):
         return user.user_id() + ' ' + datetime.datetime.now().isoformat()
 
     def connect(self, user):
-        client_id = self.new_client_id_for(user)
+        def needs_transaction():
+            current_member = model.Member.get_by_key_name(
+                user.user_id(),
+                parent=self.room,
+            )
 
-        member = model.Member(
-            parent=self.room, key_name=user.user_id(),
-            client_id=client_id,
-        )
-        member.put()
+            if current_member:
+                channel.send_message(
+                    current_member.client_id, 
+                    '{"event": "closed", "reason": "duplicated"}'
+                )
+                current_member.delete()
 
-        token = channel.create_channel(member.client_id)
+            client_id = self.new_client_id_for(user)
+            token = channel.create_channel(client_id)
+
+            new_member = model.Member(
+                parent=self.room, key_name=user.user_id(),
+                client_id=client_id,
+                )
+            new_member.put()
+
+            return new_member, token
+
+        member, token = db.run_in_transaction(needs_transaction)
 
         return member, token
 
