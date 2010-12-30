@@ -48,10 +48,15 @@ class RoomService(object):
 
         return member, token
 
+    def get_members(self):
+        # dont return iter
+        members = list(model.Member.all().ancestor(self.room))
+        return members
+
     def notify_all(self, event):
         event_json = django.utils.simplejson.dumps(event)
 
-        for member in model.Member.all().ancestor(self.room):
+        for member in self.get_members():
             try:
                 channel.send_message(
                     member.client_id, 

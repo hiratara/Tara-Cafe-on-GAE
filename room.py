@@ -103,6 +103,17 @@ class SetName(RoomBase):
 
         self.response.out.write("OK\n")
 
+class GetMembers(RoomBase):
+    def post(self, room_id):
+        room = model.Room.get_by_key_name(room_id)
+        room_service = service.RoomService(room)
+
+        members = []
+        for member in room_service.get_members():
+            members.append({"name" : member.get_name()})
+
+        self.response.out.write(django.utils.simplejson.dumps(members))
+
 class Say(RoomBase):
     def post(self, room_id):
         room = model.Room.get_by_key_name(room_id)
@@ -127,6 +138,7 @@ application = webapp.WSGIApplication([
     (r'/room/(\w+)', MainPage), 
     (r'/room/(\w+)/get_token', GetToken),
     (r'/room/(\w+)/set_name', SetName),
+    (r'/room/(\w+)/get_members', GetMembers),
     (r'/room/(\w+)/ping', Pong),
     (r'/room/(\w+)/say', Say), 
     ], debug=True)

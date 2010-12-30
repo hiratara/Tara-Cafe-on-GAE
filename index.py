@@ -3,12 +3,14 @@ from google.appengine.ext import webapp
 import google.appengine.ext.webapp.util
 import google.appengine.ext.webapp.template
 import model
+import service
 
 class MainPage(webapp.RequestHandler):
     def get(self):
         room_info = []
         for room in model.Room.all():
-            members = list(model.Member.all().ancestor(room)) # dont pass iter
+            room_service = service.RoomService(room)
+            members = room_service.get_members()
             room_info.append({
                 "room"    : room,
                 "members" : members,

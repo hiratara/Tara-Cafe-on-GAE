@@ -51,6 +51,11 @@
                 socket.onclose = function () {alert("closed");};
             }, "json");
 
+            $.post(room_id + "/get_members", function (members) {
+                members = $.map(members, function (m) { return esc(m.name); });
+                $("#members").html(members.join("、"));
+            }, "json");
+
             $("#say").submit(function (e) {
                 $.post(room_id + "/say", {saying : $("#saying").val()}); 
                 $("#saying").val('');
