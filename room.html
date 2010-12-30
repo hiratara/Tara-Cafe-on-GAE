@@ -5,10 +5,10 @@
   <script src='/js/main.js'></script>
   <script type="text/javascript">
     jQuery(function ($) {
-        var room = new taracafe.Room({{room_id}});
+        var room = new taracafe.Room({{room_id|addslashes}});
         room.run();
         room.onopen = function () {
-            room.setNickname("{{nickname|escape}}");
+            room.setNickname("{{nickname|addslashes}}");
         };
     });
   </script>
