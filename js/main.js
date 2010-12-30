@@ -59,7 +59,9 @@
                 socket.onclose = function () {alert("closed");};
             }, "json");
 
-            this.updateMemberList();
+            /* Don't update members until /set_name finished 
+               with current (broken) protocol. */
+            // this.updateMemberList();
 
             $("#say").submit(function (e) {
                 $.post(room_id + "/say", {saying : $("#saying").val()}); 

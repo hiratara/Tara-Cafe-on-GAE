@@ -7,13 +7,16 @@ import datetime
 import hashlib
 
 def delete_member(member, force=False):
-    deleting_id = member.client_id
+    name = member.get_name()
     room = member.parent()
     member.delete()
 
     room_service = RoomService(room)
     if force: 
-        room_service.say(None, "Deleted %s." % deleting_id)
+        room_service.say(None, "%s may have gone." % name)
+    else:
+        room_service.say(None, "%s exited." % name)
+
     room_service.notify_all({"event" : "member_changed"})
 
 class RoomService(object):
@@ -51,7 +54,9 @@ class RoomService(object):
                 new_member.put()
 
                 member = new_member
-                self.notify_all({"event" : "member_changed"})
+                # Don't notify until set_name finished
+                # with current (broken) protocol.
+                # self.notify_all({"event" : "member_changed"})
 
             return member, token
 
@@ -99,6 +104,14 @@ class RoomService(object):
         old_name = member.nickname
         member.nickname = new_name
         member.put()
+
+        if old_name:
+            if old_name != new_name:
+                self.say(None, "Call %s %s from now." % (old_name, new_name))
+        else:
+            # XXX set_name means entering this room 
+            #     in current (broken) protocol
+            self.say(None, "%s entered." % new_name)
 
         self.notify_all({"event" : "member_changed"})
 
