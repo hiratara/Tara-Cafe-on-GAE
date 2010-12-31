@@ -144,10 +144,12 @@ class ExitPage(RoomBase):
             user.user_id(),
             parent=room,
         )
+        exited_nick = member.get_name()
+
         service.delete_member(member)
 
         self.response.out.write(webapp.template.render(
-            'exit.html', None
+            'exit.html', {"nickname" : exited_nick}
         ))
 
 application = webapp.WSGIApplication([
