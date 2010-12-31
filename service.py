@@ -13,9 +13,9 @@ def delete_member(member, force=False):
 
     room_service = RoomService(room)
     if force: 
-        room_service.say(None, "%s may have gone." % name)
+        room_service.say(None, u"%sさんは、もういないようです。" % name)
     else:
-        room_service.say(None, "%s exited." % name)
+        room_service.say(None, u"%sさんが退室されました。" % name)
 
     room_service.notify_all({"event" : "member_changed"})
 
@@ -107,11 +107,14 @@ class RoomService(object):
 
         if old_name:
             if old_name != new_name:
-                self.say(None, "Call %s %s from now." % (old_name, new_name))
+                self.say(
+                    None, 
+                    u"%sさんは%sさんと名前を変えました。" % (old_name, new_name)
+                )
         else:
             # XXX set_name means entering this room 
             #     in current (broken) protocol
-            self.say(None, "%s entered." % new_name)
+            self.say(None, u"%sさんが、いらっしゃいました。" % new_name)
 
         self.notify_all({"event" : "member_changed"})
 

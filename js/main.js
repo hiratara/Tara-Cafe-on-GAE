@@ -16,8 +16,14 @@
          },
          updateMemberList : function () {
             $.post(this.room_id + "/get_members", function (members) {
-                members = $.map(members, function (m) { return esc(m.name); });
-                $("#members").html(members.join("、"));
+                var member_htmls = $.map(members, function (m) {
+                    return [
+                        '<span style="white-space: nowrap;">', 
+                        esc(m.name), 
+                        "</span><br>"
+                    ];
+                });
+                $("#members").html(member_htmls.join(""));
             }, "json");
          },
          run : function () {
@@ -37,12 +43,25 @@
                 socket.onmessage = function (m) {
                     var data = $.parseJSON(m.data);
                     if (data.event == "said") {
-                        $("#logs").prepend([
-                            "<div>",
-                            "<span>", esc(data.from), ": </span>",
-                            "<span>", esc(data.content), "</span>",
-                            "</div>"
-                        ].join(""));
+                        if (data.from == "[System]") {
+                            $("#logs").prepend([
+                                "<div>",
+                                "[X年 X月 X日（X曜日） X時 X分 X秒]", "<br>",
+                                '<span style="color: #ff0;">', 
+                                esc(data.content), 
+                                "</span>", "<hr>",
+                                "</div>"
+                            ].join(""));
+                        } else {
+                            $("#logs").prepend([
+                                "<div>",
+                                "[X年 X月 X日（X曜日） X時 X分 X秒]", "<br>",
+                                '<span style="font-weight: bold;">', 
+                                esc(data.from), 
+                                "</span>&gt;", esc(data.content), "<hr>",
+                                "</div>"
+                            ].join(""));
+                        }
                     } else if (data.event == "closed") {
                         $("#logs").prepend([
                             '<div class="error">',

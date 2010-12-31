@@ -1,5 +1,7 @@
+<!doctype html>
 <html>
 <head>
+<title>お茶処　「鱈」</title>
   <script src="/js/jquery-1.4.4.min.js"></script>
   <script src='/_ah/channel/jsapi'></script>
   <script src='/js/main.js'></script>
@@ -12,21 +14,82 @@
         };
     });
   </script>
+
   <style type="text/css">
+  body {
+      color: #FFF;
+     background-color: #000;
+  }
+  a:link {color: #ff0;}
+  a:visited {color: #880;}
+  a:active {color: #f80;}
+  a:hover {color: #8f0;}
+  .member-name {color: #0ff;}
   .error {
     color: #f00;
   }
+  #main-row-container {
+      width: 100%;
+      margin-right : -160px;
+      float: left;
+  }
+  #main-row {
+      margin-right : 160px;
+  }
+  #member-row {
+      width: 160px;
+      float: right;
+  }
   </style>
 </head>
-<body>
-お名前<input type="text" id="nickname" value="{{nickname|escape}}"></input>
+<body> 
 
-<form id="say">
-<input type="text" id="saying"></input>
-<input type="submit" value="say"></input>
-</form>
-<div id="members"></div>
-<div id="logs"></div>
-<a href="{{room_id|escape}}/exit">exit</a>
+<div id="main-row-container"><div id="main-row">
+  名前：
+  <input type="text" id="nickname" value="{{nickname|escape}}"></input><br>
+  <form id="say">
+    <input type="text" id="saying"size="30"></input><br>
+    <input type="submit" name="submit" value="発言"></input>
+    <input type="reset" value="リセット"></input>
+    <br>
+  </form>
+
+  <form action="{{room_id|escape}}/exit" method="get">
+  <input type="submit" name="submit" value="退室">
+  </form>
+
+  <div id="log-cell">
+  <h2 style="text-align: center; font-weight: bold;">
+  <span style="color: #0f0; font-size: x-large;">
+  お茶処「鱈」
+  </span>
+  <span style="color: #FCC; font-size: medium;">
+  room{{room_id|escape}}
+  </span>
+  </h2>
+  <hr>
+
+  <div id="logs"></div>
+
+  <a href="{{room_id|escape}}/exit">退室する</a>
+
+  <div style="float: right;">
+  Produced by <a href="http://d.hatena.ne.jp/hiratara/">hiratara</a>
+  </div>
+
+  </div>
+</div></div>
+
+<div id="member-row">
+  <h2 style="text-align: center; font-size: small; color: #0ff; font-weight: bold; white-space: nowrap;">
+  ログインリスト
+  </h2>
+  <hr>
+  <div id="members"></div>
+  <hr>
+</div>
+
+<div style="clear: both;"></div>
+
 </body>
 </html>
