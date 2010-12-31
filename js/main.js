@@ -3,6 +3,16 @@
         return $("<div/>").text(str).html();
     }
 
+     function formatTimestamp(str){
+         var t = new Date(str);
+         var week_ja = ["日", "月", "火", "水", "木", "金", "土"][t.getDay()];
+         return [
+             "[", t.getFullYear(), "年 ", (t.getMonth() + 1), "月 ",
+             t.getDate(), "日（", week_ja, "曜日） ", 
+             t.getHours(), "時 ", t.getMinutes(), "分 ", t.getSeconds(), "秒]"
+         ].join("");
+     }
+
      var Room = function (room_id) {
          this.room_id = room_id;
          this.onopen = function () {};
@@ -43,10 +53,12 @@
                 socket.onmessage = function (m) {
                     var data = $.parseJSON(m.data);
                     if (data.event == "said") {
+                        var timestamp = formatTimestamp(data.timestamp);
+
                         if (data.from == "[System]") {
                             $("#logs").prepend([
                                 "<div>",
-                                "[X年 X月 X日（X曜日） X時 X分 X秒]", "<br>",
+                                timestamp, "<br>",
                                 '<span style="color: #ff0;">', 
                                 esc(data.content), 
                                 "</span>", "<hr>",
@@ -55,7 +67,7 @@
                         } else {
                             $("#logs").prepend([
                                 "<div>",
-                                "[X年 X月 X日（X曜日） X時 X分 X秒]", "<br>",
+                                timestamp, "<br>",
                                 '<span style="font-weight: bold;">', 
                                 esc(data.from), 
                                 "</span>&gt;", esc(data.content), "<hr>",

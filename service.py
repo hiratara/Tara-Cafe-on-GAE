@@ -90,10 +90,13 @@ class RoomService(object):
             )
             nickname = member.get_name()
 
+        timestamp = datetime.datetime.now()
+
         self.notify_all({
             "event"  : "said",
             "from"   : nickname,
-            "content" : saying
+            "content" : saying,
+            "timestamp" : timestamp.strftime("%d %b, %Y %H:%M:%S GMT"),
         })
 
     def set_name(self, user, new_name):
