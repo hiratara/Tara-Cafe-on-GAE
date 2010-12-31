@@ -1,20 +1,65 @@
+<!doctype html>
 <html>
 <head>
+<title>お茶処　「鱈」</title>
+<script type="text/javascript">
+setInterval(function () {
+    window.location.reload();
+}, 1000 * 60);
+</script>
+<style type="text/css">
+  body {
+      color: #FFF;
+     background-color: #000;
+  }
+  a:link {color: #ff0;}
+  a:visited {color: #880;}
+  a:active {color: #f80;}
+  a:hover {color: #8f0;}
+  .member-name {color: #0ff;}
+</style>
 </head>
-<body>
-{% for info in room_info %}
-  <a href="/room/{{ info.room.key.name|escape }}">room{{ info.room.key.name|escape }}</a>
-  {% if info.members|length %}
-    {% for member in info.members %}
-      {{ member.get_name|escape }}
-      {% if not forloop.last %}、{% endif %}
-    {% endfor %}
-  {% else %}
-  誰もいません。
-  {% endif %}
-  <br>
-{% endfor %}
+<body> 
 
-<a href="{{logout_url|escape}}">logout</a>
+<div style="text-align: center;">
+<h1 style="color: #5AF; font-size: xx-large; font-weight: bold; font-style: italic;">
+◇◇　お茶処「鱈」2011　◇◇
+</h1>
+</div>
+
+<p>　本サービスは現在α版です。予告なくサービスを停止することがあります。</p>
+
+<hr>
+
+<dl>
+{% for info in room_info %}
+  <dt>
+    ・　<a href="/room/{{ info.room.key.name|escape }}">Room {{ info.room.key.name|escape }}</a>
+  </dt>
+  <dd>
+    入室している人は、
+    {% if info.members|length %}
+      {% for member in info.members %}
+        <span class="member-name">{{ member.get_name|escape }}</span>
+        {% if not forloop.last %}、{% endif %}
+      {% endfor %}
+    {% else %}
+    いないよう
+    {% endif %}
+    です。
+    </dd>
+{% endfor %}
+</dl>
+
+<hr>
+<ul>
+<li><a href="http://hiratara.dyndns.org//tea_tara/chatenter.cgi">レトロ版</a></li>
+<li><a href="{{logout_url|escape}}">logout</a></li>
+</ul>
+
+<div style="float: right;">
+Produced by <a href="http://d.hatena.ne.jp/hiratara/">hiratara</a>
+</div>
+<div style="clear:right;"></div>
 </body>
 </html>
