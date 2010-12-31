@@ -53,8 +53,10 @@ class RoomBase(webapp.RequestHandler):
 
 class MainPage(RoomBase):
     def get(self, room_id):
+        room = model.Room.get_by_key_name(room_id)
+
         self.response.out.write(webapp.template.render(
-            'name_form.html', None
+            'name_form.html', {"room" : room}
         ))
 
     def post(self, room_id):

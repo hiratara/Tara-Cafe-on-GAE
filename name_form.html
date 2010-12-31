@@ -1,4 +1,41 @@
+<!doctype html>
+<html>
+<head>
+<title>お茶処　「鱈」</title>
+<style type="text/css">
+  body {
+      color: #FFF;
+     background-color: #000;
+  }
+  a:link {color: #ff0;}
+  a:visited {color: #880;}
+  a:active {color: #f80;}
+  a:hover {color: #8f0;}
+</style>
+</head>
+<body>
+<div style="text-align: center;">
+<h1 style="color: #0F0; font-size: 3em; font-weight: normal;">
+  お茶処　「鱈」
+  <span style="color: #BBF; font-size: medium;">room{{room.key.name}}</span>
+</h1>
+</div>
+
+<p>
+　ハンドル名は、必ず入力してください。また、退室する時は、なるべく「退室する」を選んで退室してください。<br>
+　ハンドル名や発言に<span style="color: red;">タグは使用不可</span>です。
+</p>
+
+<hr>
+
 <form name="." method="POST">
-name: <input name="nickname">
-<input name="submit" type="submit" value="ENTER">
+ハンドル名<input name="nickname"><br>
+<input type="submit" value="ちゃっとに参加する">
+<input type="reset" value="リセット">
 </form>
+
+<hr>
+
+<a href="/">入り口に戻る</a>
+</body>
+</html>
