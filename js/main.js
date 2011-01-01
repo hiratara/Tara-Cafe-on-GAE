@@ -36,6 +36,56 @@
                 $("#members").html(member_htmls.join(""));
             }, "json");
          },
+         openSocket : function () {
+             var self = this;
+             var channel = new goog.appengine.Channel(this.token);
+             var socket = channel.open();
+             socket.onopen = function () {
+                 setInterval(function () {
+                     $.post(self.room_id + "/ping", {id : self.clientID}); 
+                 }, 1000 * 60);
+
+                 self.onopen();
+             };
+             socket.onmessage = function (m) {
+                 var data = $.parseJSON(m.data);
+                 if (data.event == "said") {
+                     var timestamp = formatTimestamp(data.timestamp);
+
+                     if (data.from == "[System]") {
+                         $("#logs").prepend([
+                             "<div>",
+                             timestamp, "<br>",
+                             '<span style="color: #ff0;">', 
+                             esc(data.content), 
+                             "</span>", "<hr>",
+                             "</div>"
+                         ].join(""));
+                     } else {
+                         $("#logs").prepend([
+                             "<div>",
+                             timestamp, "<br>",
+                             '<span style="font-weight: bold;">', 
+                             esc(data.from), 
+                             "</span>&gt;", esc(data.content), "<hr>",
+                             "</div>"
+                         ].join(""));
+                     }
+                 } else if (data.event == "closed") {
+                     $("#logs").prepend([
+                         '<div class="error">',
+                         "<span>closed connection(", 
+                         esc(data.reason) , 
+                         ")</span>",
+                         "</div>"
+                     ].join(""));
+                 } else if (data.event == "member_changed") {
+                     self.updateMemberList();
+                 }
+             };
+             socket.onerror = function () {alert("error");};
+             socket.onclose = function () {alert("closed");};
+         },
          run : function () {
             var self = this;
             var room_id = this.room_id;
@@ -43,53 +93,9 @@
             $.post(
                 room_id + "/get_token", null, null, "json"
             ).next(function (got) {
-                var channel = new goog.appengine.Channel(got.token);
-                var socket = channel.open();
-                socket.onopen = function () {
-                    setInterval(function () {
-                        $.post(room_id + "/ping", {id : got.clientID}); 
-                    }, 1000 * 60);
-
-                    self.onopen();
-                };
-                socket.onmessage = function (m) {
-                    var data = $.parseJSON(m.data);
-                    if (data.event == "said") {
-                        var timestamp = formatTimestamp(data.timestamp);
-
-                        if (data.from == "[System]") {
-                            $("#logs").prepend([
-                                "<div>",
-                                timestamp, "<br>",
-                                '<span style="color: #ff0;">', 
-                                esc(data.content), 
-                                "</span>", "<hr>",
-                                "</div>"
-                            ].join(""));
-                        } else {
-                            $("#logs").prepend([
-                                "<div>",
-                                timestamp, "<br>",
-                                '<span style="font-weight: bold;">', 
-                                esc(data.from), 
-                                "</span>&gt;", esc(data.content), "<hr>",
-                                "</div>"
-                            ].join(""));
-                        }
-                    } else if (data.event == "closed") {
-                        $("#logs").prepend([
-                            '<div class="error">',
-                            "<span>closed connection(", 
-                            esc(data.reason) , 
-                            ")</span>",
-                            "</div>"
-                        ].join(""));
-                    } else if (data.event == "member_changed") {
-                        self.updateMemberList();
-                    }
-                };
-                socket.onerror = function () {alert("error");};
-                socket.onclose = function () {alert("closed");};
+                self.token = got.token;
+                self.clientID = got.clientID;
+                self.openSocket();
             });
 
             /* Don't update members until /set_name finished 
