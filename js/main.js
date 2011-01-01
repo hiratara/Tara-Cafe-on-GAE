@@ -40,7 +40,9 @@
             var self = this;
             var room_id = this.room_id;
 
-            $.post(room_id + "/get_token", function (got) {
+            $.post(
+                room_id + "/get_token", null, null, "json"
+            ).next(function (got) {
                 var channel = new goog.appengine.Channel(got.token);
                 var socket = channel.open();
                 socket.onopen = function () {
@@ -88,7 +90,7 @@
                 };
                 socket.onerror = function () {alert("error");};
                 socket.onclose = function () {alert("closed");};
-            }, "json");
+            });
 
             /* Don't update members until /set_name finished 
                with current (broken) protocol. */
