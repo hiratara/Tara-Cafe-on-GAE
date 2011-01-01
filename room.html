@@ -8,10 +8,15 @@
   <script src='/js/main.js'></script>
   <script type="text/javascript">
     jQuery(function ($) {
+        inputsForSaying = $("#say :input");
+        inputsForSaying.attr('disabled', 'disabled');
+
         var room = new taracafe.Room({{room_id|addslashes}});
         room.run();
         room.onopen = function () {
-            room.setNickname("{{nickname|addslashes}}");
+            room.setNickname("{{nickname|addslashes}}").next(function () {
+                inputsForSaying.removeAttr('disabled');
+            });
         };
     });
   </script>

@@ -19,7 +19,7 @@
      };
      Room.prototype = {
          setNickname : function (nickname) {
-             $.post(
+             return $.post(
                  this.room_id + "/set_name", 
                  {nickname : nickname}
              ); 
