@@ -42,7 +42,7 @@
              var socket = channel.open();
              socket.onopen = function () {
                  setInterval(function () {
-                     $.post(self.room_id + "/ping", {id : self.clientID}); 
+                     $.post(self.room_id + "/ping"); 
                  }, 1000 * 60);
 
                  self.onopen();

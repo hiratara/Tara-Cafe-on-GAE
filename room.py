@@ -128,10 +128,10 @@ class Say(RoomBase):
 class Pong(RoomBase):
     def post(self, room_id):
         room = model.Room.get_by_key_name(room_id)
-        client_id = self.request.get('id')
+        user = self.get_user()
 
         room_service = service.RoomService(room)
-        room_service.ping(client_id)
+        room_service.ping_from(user)
 
         self.response.out.write("PONG\n")
 

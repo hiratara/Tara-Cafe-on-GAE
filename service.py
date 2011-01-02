@@ -112,8 +112,8 @@ class RoomService(object):
 
         self.notify_all({"event" : "member_changed"})
 
-    def ping(self, client_id):
-        member = model.Member.by_client_id(client_id)
+    def ping_from(self, user):
+        member = model.Member.get_by_room_and_user(self.room, user)
         member.date = datetime.datetime.now()
         member.put()
 

@@ -21,10 +21,6 @@ class Member(db.Model):
         return self.nickname or self.key().name()
 
     @classmethod
-    def by_client_id(klass, client_id):
-        return klass.all().filter("client_id =", client_id).get()
-
-    @classmethod
     def get_by_room_and_user(klass, room, user):
         return klass.get_by_key_name(
             user.user_id(),
