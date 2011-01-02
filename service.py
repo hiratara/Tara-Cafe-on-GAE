@@ -28,35 +28,41 @@ class RoomService(object):
         return hashlib.sha1(seed).hexdigest()
 
     def connect(self, user):
-        def needs_transaction():
-            client_id = self.new_client_id_for(user)
-            token = channel.create_channel(client_id)
+        client_id = self.new_client_id_for(user)
+        token = channel.create_channel(client_id)
 
+        def needs_transaction():
             current_member = model.Member.get_by_room_and_user(self.room, user)
 
+            closed_client_id = None
             if current_member:
-                channel.send_message(
-                    current_member.client_id, 
-                    '{"event": "closed", "reason": "duplicated"}'
-                )
-
+                closed_client_id = current_member.client_id
                 member = current_member
             else:
                 member = model.Member(
                     parent=self.room, key_name=user.user_id(),
                 )
 
-                # Don't notify until set_name finished
-                # with current (broken) protocol.
-                # self.notify_all({"event" : "member_changed"})
-
             member.client_id = client_id
             member.current_token = token
             member.put()
 
-            return member
+            return member, closed_client_id
 
-        return db.run_in_transaction(needs_transaction)
+        member, closed_client_id = db.run_in_transaction(needs_transaction)
+
+        if closed_client_id:
+            channel.send_message(
+                closed_client_id, 
+                '{"event": "closed", "reason": "duplicated"}'
+            )
+        else:
+            # Don't notify until set_name finished
+            # with current (broken) protocol.
+            # self.notify_all({"event" : "member_changed"})
+            pass
+
+        return member
 
     def get_members(self):
         # dont return iter
