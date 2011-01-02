@@ -14,6 +14,7 @@ class Member(db.Model):
     parent   - Room
     """
     client_id = db.StringProperty()  # Unique key. (room + user + time)
+    current_token = db.StringProperty()
     nickname = db.StringProperty()
     date = db.DateTimeProperty(auto_now_add=True)
 

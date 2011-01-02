@@ -39,27 +39,24 @@ class RoomService(object):
                     current_member.client_id, 
                     '{"event": "closed", "reason": "duplicated"}'
                 )
-                current_member.client_id = client_id
-                current_member.put()
 
                 member = current_member
             else:
-                new_member = model.Member(
+                member = model.Member(
                     parent=self.room, key_name=user.user_id(),
-                    client_id=client_id,
                 )
-                new_member.put()
 
-                member = new_member
                 # Don't notify until set_name finished
                 # with current (broken) protocol.
                 # self.notify_all({"event" : "member_changed"})
 
-            return member, token
+            member.client_id = client_id
+            member.current_token = token
+            member.put()
 
-        member, token = db.run_in_transaction(needs_transaction)
+            return member
 
-        return member, token
+        return db.run_in_transaction(needs_transaction)
 
     def get_members(self):
         # dont return iter

@@ -86,10 +86,10 @@ class GetToken(RoomBase):
         user = self.get_user()
 
         room_service = service.RoomService(room)
-        member, token = room_service.connect(user)
+        member = room_service.connect(user)
 
         self.response.out.write(django.utils.simplejson.dumps({
-            'token' : token,
+            'token' : member.current_token,
             'clientID' : member.client_id,
             }))
 
