@@ -32,10 +32,7 @@ class RoomService(object):
             client_id = self.new_client_id_for(user)
             token = channel.create_channel(client_id)
 
-            current_member = model.Member.get_by_key_name(
-                user.user_id(),
-                parent=self.room,
-            )
+            current_member = model.Member.get_by_room_and_user(self.room, user)
 
             if current_member:
                 channel.send_message(
@@ -84,10 +81,7 @@ class RoomService(object):
     def say(self, user, saying):
         nickname = '[System]'
         if user:
-            member = model.Member.get_by_key_name(
-                user.user_id(),
-                parent=self.room,
-            )
+            member = model.Member.get_by_room_and_user(self.room, user)
             nickname = member.get_name()
 
         timestamp = datetime.datetime.now()
@@ -100,10 +94,7 @@ class RoomService(object):
         })
 
     def set_name(self, user, new_name):
-        member = model.Member.get_by_key_name(
-            user.user_id(),
-            parent=self.room,
-        )
+        member = model.Member.get_by_room_and_user(self.room, user)
         old_name = member.nickname
         member.nickname = new_name
         member.put()

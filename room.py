@@ -140,10 +140,7 @@ class ExitPage(RoomBase):
         room = model.Room.get_by_key_name(room_id)
         user = self.get_user()
 
-        member = model.Member.get_by_key_name(
-            user.user_id(),
-            parent=room,
-        )
+        member = model.Member.get_by_room_and_user(room, user)
         exited_nick = member.get_name()
 
         service.delete_member(member)
