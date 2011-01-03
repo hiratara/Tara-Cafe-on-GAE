@@ -39,9 +39,9 @@ setInterval(function () {
   </dt>
   <dd>
     入室している人は、
-    {% if info.members|length %}
-      {% for member in info.members %}
-        <span class="member-name">{{ member.get_name|escape }}</span>
+    {% if info.connections|length %}
+      {% for connection in info.connections %}
+        <span class="member-name">{{ connection.get_name|escape }}</span>
         {% if not forloop.last %}、{% endif %}
       {% endfor %}
     {% else %}

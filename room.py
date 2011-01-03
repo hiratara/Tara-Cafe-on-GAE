@@ -86,11 +86,11 @@ class GetToken(RoomBase):
         user = self.get_user()
 
         room_service = service.RoomService(room)
-        member = room_service.connect(user)
+        connection = room_service.connect(user)
 
         self.response.out.write(django.utils.simplejson.dumps({
-            'token' : member.current_token,
-            'clientID' : member.client_id,
+            'token' : connection.current_token,
+            'clientID' : connection.client_id,
             }))
 
 
@@ -109,11 +109,11 @@ class GetMembers(RoomBase):
         room = model.Room.get_by_key_name(room_id)
         room_service = service.RoomService(room)
 
-        members = []
-        for member in room_service.get_members():
-            members.append({"name" : member.get_name()})
+        connections = []
+        for connection in room_service.get_connections():
+            connections.append({"name" : connection.get_name()})
 
-        self.response.out.write(django.utils.simplejson.dumps(members))
+        self.response.out.write(django.utils.simplejson.dumps(connections))
 
 class Say(RoomBase):
     def post(self, room_id):
@@ -140,10 +140,10 @@ class ExitPage(RoomBase):
         room = model.Room.get_by_key_name(room_id)
         user = self.get_user()
 
-        member = model.Member.get_by_room_and_user(room, user)
-        exited_nick = member.get_name()
+        connection = model.RoomConnection.get_by_room_and_user(room, user)
+        exited_nick = connection.get_name()
 
-        service.delete_member(member)
+        service.close_connection(connection)
 
         self.response.out.write(webapp.template.render(
             'exit.html', {"nickname" : exited_nick}

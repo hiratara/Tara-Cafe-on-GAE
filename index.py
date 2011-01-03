@@ -11,10 +11,10 @@ class MainPage(webapp.RequestHandler):
         room_info = []
         for room in model.Room.all():
             room_service = service.RoomService(room)
-            members = room_service.get_members()
+            connections = room_service.get_connections()
             room_info.append({
                 "room"    : room,
-                "members" : members,
+                "connections" : connections,
             })
 
         self.response.out.write(webapp.template.render(

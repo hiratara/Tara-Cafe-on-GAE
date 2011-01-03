@@ -6,10 +6,10 @@ import django.utils.simplejson
 import datetime
 import hashlib
 
-def delete_member(member, force=False):
-    name = member.get_name()
-    room = member.parent()
-    member.delete()
+def close_connection(connection, force=False):
+    name = connection.get_name()
+    room = connection.parent()
+    connection.delete()
 
     room_service = RoomService(room)
     if force: 
@@ -32,24 +32,24 @@ class RoomService(object):
         token = channel.create_channel(client_id)
 
         def needs_transaction():
-            current_member = model.Member.get_by_room_and_user(self.room, user)
+            cur_conn = model.RoomConnection.get_by_room_and_user(self.room, user)
 
             closed_client_id = None
-            if current_member:
-                closed_client_id = current_member.client_id
-                member = current_member
+            if cur_conn:
+                closed_client_id = cur_conn.client_id
+                connection = cur_conn
             else:
-                member = model.Member(
+                connection = model.RoomConnection(
                     parent=self.room, key_name=user.user_id(),
                 )
 
-            member.client_id = client_id
-            member.current_token = token
-            member.put()
+            connection.client_id = client_id
+            connection.current_token = token
+            connection.put()
 
-            return member, closed_client_id
+            return connection, closed_client_id
 
-        member, closed_client_id = db.run_in_transaction(needs_transaction)
+        connection, closed_client_id = db.run_in_transaction(needs_transaction)
 
         if closed_client_id:
             channel.send_message(
@@ -62,20 +62,20 @@ class RoomService(object):
             # self.notify_all({"event" : "member_changed"})
             pass
 
-        return member
+        return connection
 
-    def get_members(self):
+    def get_connections(self):
         # dont return iter
-        members = list(model.Member.all().ancestor(self.room))
-        return members
+        connections = list(model.RoomConnection.all().ancestor(self.room))
+        return connections
 
     def notify_all(self, event):
         event_json = django.utils.simplejson.dumps(event)
 
-        for member in self.get_members():
+        for connection in self.get_connections():
             try:
                 channel.send_message(
-                    member.client_id, 
+                    connection.client_id, 
                     event_json
                 )
             except channel.InvalidChannelClientIdError:
@@ -83,11 +83,11 @@ class RoomService(object):
 
     def say(self, user, saying):
         if user:
-            member = model.Member.get_by_room_and_user(self.room, user)
-            nickname = member.get_name()
-            user_id = member.key().name()
-            client_id = member.client_id
-            nickname = member.nickname
+            connection = model.RoomConnection.get_by_room_and_user(self.room, user)
+            nickname = connection.get_name()
+            user_id = connection.key().name()
+            client_id = connection.client_id
+            nickname = connection.nickname
         else:
             nickname = None
             user_id = None
@@ -110,10 +110,10 @@ class RoomService(object):
         })
 
     def set_name(self, user, new_name):
-        member = model.Member.get_by_room_and_user(self.room, user)
-        old_name = member.nickname
-        member.nickname = new_name
-        member.put()
+        connection = model.RoomConnection.get_by_room_and_user(self.room, user)
+        old_name = connection.nickname
+        connection.nickname = new_name
+        connection.put()
 
         if old_name:
             if old_name != new_name:
@@ -129,7 +129,7 @@ class RoomService(object):
         self.notify_all({"event" : "member_changed"})
 
     def ping_from(self, user):
-        member = model.Member.get_by_room_and_user(self.room, user)
-        member.date = datetime.datetime.now()
-        member.put()
+        connection = model.RoomConnection.get_by_room_and_user(self.room, user)
+        connection.date = datetime.datetime.now()
+        connection.put()
 

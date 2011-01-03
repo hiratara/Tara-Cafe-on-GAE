@@ -8,7 +8,7 @@ class Room(db.Model):
     """
     pass
 
-class Member(db.Model):
+class RoomConnection(db.Model):
     """
     key_name - user_id
     parent   - Room
@@ -30,8 +30,8 @@ class Member(db.Model):
 
 class Log(db.Model):
     room = db.ReferenceProperty(Room)
-    user_id = db.StringProperty() # From Member class's key_name
-    client_id = db.StringProperty() # From Member class
-    nickname = db.StringProperty() # From Member class
+    user_id = db.StringProperty() # From RoomConnection class's key_name
+    client_id = db.StringProperty() # From RoomConnection class
+    nickname = db.StringProperty() # From RoomConnection class
     content = db.StringProperty()
     date = db.DateTimeProperty(auto_now_add=True)
