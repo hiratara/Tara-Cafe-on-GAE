@@ -27,3 +27,11 @@ class Member(db.Model):
             user.user_id(),
             parent=room,
         )
+
+class Log(db.Model):
+    room = db.ReferenceProperty(Room)
+    user_id = db.StringProperty() # From Member class's key_name
+    client_id = db.StringProperty() # From Member class
+    nickname = db.StringProperty() # From Member class
+    content = db.StringProperty()
+    date = db.DateTimeProperty(auto_now_add=True)

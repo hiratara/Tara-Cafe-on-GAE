@@ -82,18 +82,31 @@ class RoomService(object):
                 pass  # may be an expired client ID.
 
     def say(self, user, saying):
-        nickname = '[System]'
         if user:
             member = model.Member.get_by_room_and_user(self.room, user)
             nickname = member.get_name()
+            user_id = member.key().name()
+            client_id = member.client_id
+            nickname = member.nickname
+        else:
+            nickname = None
+            user_id = None
+            client_id = None
 
-        timestamp = datetime.datetime.now()
+        log = model.Log(
+            room=self.room,
+            user_id=user_id,
+            client_id=client_id,
+            nickname=nickname,
+            content=saying,
+        )
+        log.put()
 
         self.notify_all({
             "event"  : "said",
-            "from"   : nickname,
+            "from"   : nickname or '[System]',
             "content" : saying,
-            "timestamp" : timestamp.strftime("%d %b, %Y %H:%M:%S GMT"),
+            "timestamp" : log.date.strftime("%d %b, %Y %H:%M:%S GMT"),
         })
 
     def set_name(self, user, new_name):
