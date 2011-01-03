@@ -16,7 +16,7 @@ class RoomConnection(db.Model):
     client_id = db.StringProperty()  # Unique key. (room + user + time)
     current_token = db.StringProperty()
     nickname = db.StringProperty()
-    date = db.DateTimeProperty(auto_now_add=True)
+    last_time = db.DateTimeProperty(auto_now_add=True)
 
     def get_name(self):
         return self.nickname or self.key().name()

@@ -130,6 +130,6 @@ class RoomService(object):
 
     def ping_from(self, user):
         connection = model.RoomConnection.get_by_room_and_user(self.room, user)
-        connection.date = datetime.datetime.now()
+        connection.last_time = datetime.datetime.now()
         connection.put()
 

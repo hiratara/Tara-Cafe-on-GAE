@@ -10,7 +10,8 @@ class CleanMembers(webapp.RequestHandler):
         import datetime
         that_time = datetime.datetime.now() \
                     + datetime.timedelta(seconds=-60 * 3)
-        for connection in model.RoomConnection.all().filter('date <', that_time):
+        all_rooms = model.RoomConnection.all()
+        for connection in all_rooms.filter('last_time <', that_time):
             service.close_connection(connection, force=True)
 
         self.response.out.write("Deleted.\n")
