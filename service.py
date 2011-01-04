@@ -19,6 +19,16 @@ def close_connection(connection, force=False):
 
     room_service.notify_all({"event" : "member_changed"})
 
+def _log_to_event(log):
+    """Changes Log's instance into an event.
+    """
+    return {
+        "event" : "said",
+        "from" : log.nickname,
+        "content" : log.content,
+        "timestamp" : log.date.strftime("%d %b, %Y %H:%M:%S GMT"),
+    }
+
 class RoomService(object):
     def __init__(self, room):
         self.room = room
@@ -26,6 +36,18 @@ class RoomService(object):
     def new_client_id_for(self, user):
         seed = user.user_id() + ' ' + datetime.datetime.now().isoformat()
         return hashlib.sha1(seed).hexdigest()
+
+    def _send_recent_events(self, client_id):
+        """Send events in data store to client_id.
+
+           Some last Log's instances are sent.
+        """
+        room_logs = model.Log.all().filter("room =", self.room)
+        for log in room_logs.order("-date").fetch(20):
+            channel.send_message(
+                client_id, 
+                django.utils.simplejson.dumps(_log_to_event(log))
+            )
 
     def connect(self, user):
         client_id = self.new_client_id_for(user)
@@ -61,6 +83,8 @@ class RoomService(object):
             # with current (broken) protocol.
             # self.notify_all({"event" : "member_changed"})
             pass
+
+        self._send_recent_events(connection.client_id)
 
         return connection
 
@@ -102,12 +126,7 @@ class RoomService(object):
         )
         log.put()
 
-        self.notify_all({
-            "event"  : "said",
-            "from"   : nickname,
-            "content" : saying,
-            "timestamp" : log.date.strftime("%d %b, %Y %H:%M:%S GMT"),
-        })
+        self.notify_all(_log_to_event(log))
 
     def set_name(self, user, new_name):
         connection = model.RoomConnection.get_by_room_and_user(self.room, user)
