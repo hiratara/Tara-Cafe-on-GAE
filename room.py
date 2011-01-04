@@ -93,6 +93,15 @@ class GetToken(RoomBase):
             'clientID' : connection.client_id,
             }))
 
+class SendRecentLogs(RoomBase):
+    def post(self, room_id):
+        room = model.Room.get_by_key_name(room_id)
+        user = self.get_user()
+
+        room_service = service.RoomService(room)
+        room_service.send_recent_events(user)
+
+        self.response.out.write("OK\n")
 
 class SetName(RoomBase):
     def post(self, room_id):
@@ -152,6 +161,7 @@ class ExitPage(RoomBase):
 application = webapp.WSGIApplication([
     (r'/room/(\w+)', MainPage), 
     (r'/room/(\w+)/get_token', GetToken),
+    (r'/room/(\w+)/request_recent_logs', SendRecentLogs),
     (r'/room/(\w+)/set_name', SetName),
     (r'/room/(\w+)/get_members', GetMembers),
     (r'/room/(\w+)/ping', Pong),

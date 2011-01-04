@@ -52,14 +52,16 @@ class RoomService(object):
         seed = user.user_id() + ' ' + datetime.datetime.now().isoformat()
         return hashlib.sha1(seed).hexdigest()
 
-    def _send_recent_events(self, client_id):
-        """Send events in data store to client_id.
+    def send_recent_events(self, user):
+        """Send events in data store to user.
 
            Some last Log's instances are sent.
         """
+        connection = model.RoomConnection.get_by_room_and_user(self.room, user)
+
         room_logs = model.Log.all().filter("room =", self.room)
         for log in room_logs.order("-date").fetch(20):
-            _send_event(client_id, _log_to_event(log))
+            _send_event(connection.client_id, _log_to_event(log))
 
     def connect(self, user):
         client_id = self.new_client_id_for(user)
@@ -147,8 +149,6 @@ class RoomService(object):
             # XXX set_name means entering this room 
             #     in current (broken) protocol
             self.say(None, u"%sさんが、いらっしゃいました。" % new_name)
-            # FIXME: If you reconnect the room, you won't get old logs.
-            self._send_recent_events(connection.client_id)
 
         self.notify_all({"event" : "member_changed"})
 

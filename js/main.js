@@ -81,6 +81,8 @@
                      $.post(self.room_id + "/ping"); 
                  }, 1000 * 60);
 
+                 $.post(self.room_id + "/request_recent_logs");
+
                  self.onopen();
              };
              socket.onmessage = function (m) {
