@@ -18,6 +18,7 @@
          this.onopen = function () {};
          this.logs = [];
          this.logSize = 20;
+         this.pingInterval = 60;  /* sec */
      };
      Room.prototype = {
          setNickname : function (nickname) {
@@ -79,7 +80,7 @@
              socket.onopen = function () {
                  setInterval(function () {
                      $.post(self.room_id + "/ping"); 
-                 }, 1000 * 60);
+                 }, 1000 * self.pingInterval);
 
                  $.post(self.room_id + "/request_recent_logs");
 
