@@ -3,8 +3,8 @@
         return $("<div/>").text(str).html();
     }
 
-     function formatTimestamp(str){
-         var t = new Date(str);
+     function formatTimestamp(date){
+         var t = date;
          var week_ja = ["日", "月", "火", "水", "木", "金", "土"][t.getDay()];
          return [
              "[", t.getFullYear(), "年 ", (t.getMonth() + 1), "月 ",
@@ -16,6 +16,8 @@
      var Room = function (room_id) {
          this.room_id = room_id;
          this.onopen = function () {};
+         this.logs = [];
+         this.logSize = 20;
      };
      Room.prototype = {
          setNickname : function (nickname) {
@@ -36,6 +38,25 @@
                 $("#members").html(member_htmls.join(""));
             }, "json");
          },
+         addLog : function (timestamp, htmlMessage) {
+             timestamp = timestamp || new Date();
+             var id = "log-" + timestamp.getTime() + "-" + 
+                      Math.floor(Math.random() * 1000);
+             var timestampStr = formatTimestamp(timestamp);
+             $("#logs").prepend([
+                 '<div id="', id, '">', timestampStr, "<br>", 
+                 htmlMessage, "<hr>", "</div>"
+             ].join(""));
+
+             this.logs.unshift({
+                 timestamp : timestamp,
+                 elem : $("#" + id)
+             });
+
+             while (this.logs.length > this.logSize) { (function (log) {
+                 log.elem.remove();
+             })(this.logs.pop()); }
+         },
          openSocket : function () {
              var self = this;
              var channel = new goog.appengine.Channel(this.token);
@@ -50,35 +71,27 @@
              socket.onmessage = function (m) {
                  var data = $.parseJSON(m.data);
                  if (data.event == "said") {
-                     var timestamp = formatTimestamp(data.timestamp);
+                     var timestamp = new Date(data.timestamp);
 
                      if (data.from == "[System]") {
-                         $("#logs").prepend([
-                             "<div>",
-                             timestamp, "<br>",
+                         self.addLog(timestamp, [
                              '<span style="color: #ff0;">', 
                              esc(data.content), 
-                             "</span>", "<hr>",
-                             "</div>"
-                         ].join(""));
+                             "</span>"
+                         ].join(''));
                      } else {
-                         $("#logs").prepend([
-                             "<div>",
-                             timestamp, "<br>",
+                         self.addLog(timestamp, [
                              '<span style="font-weight: bold;">', 
                              esc(data.from), 
-                             "</span>&gt;", esc(data.content), "<hr>",
-                             "</div>"
-                         ].join(""));
+                             "</span>&gt;", esc(data.content)
+                         ].join(''));
                      }
                  } else if (data.event == "closed") {
-                     $("#logs").prepend([
-                         '<div class="error">',
-                         "<span>closed connection(", 
+                     self.addLog(timestamp, [
+                         '<span  class="error">closed connection(', 
                          esc(data.reason) , 
-                         ")</span>",
-                         "</div>"
-                     ].join(""));
+                         ")</span>"
+                     ].join(''));
                  } else if (data.event == "member_changed") {
                      self.updateMemberList();
                  }
