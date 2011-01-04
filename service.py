@@ -5,6 +5,7 @@ from google.appengine.api import channel
 import django.utils.simplejson
 import datetime
 import hashlib
+import logging
 
 def close_connection(connection, force=False):
     name = connection.get_name()
@@ -29,6 +30,20 @@ def _log_to_event(log):
         "timestamp" : log.date.strftime("%d %b, %Y %H:%M:%S GMT"),
     }
 
+def _send_event(client_id, event):
+    """Send events to client_id.
+
+       event is a python data structure, which is converted in JSON and sent.
+    """
+    try:
+        channel.send_message(
+            client_id, 
+            django.utils.simplejson.dumps(event)
+        )
+    except channel.InvalidChannelClientIdError, e:
+        # may be an expired client ID.
+        loging.warn(e)
+
 class RoomService(object):
     def __init__(self, room):
         self.room = room
@@ -44,10 +59,7 @@ class RoomService(object):
         """
         room_logs = model.Log.all().filter("room =", self.room)
         for log in room_logs.order("-date").fetch(20):
-            channel.send_message(
-                client_id, 
-                django.utils.simplejson.dumps(_log_to_event(log))
-            )
+            _send_event(client_id, _log_to_event(log))
 
     def connect(self, user):
         client_id = self.new_client_id_for(user)
@@ -74,10 +86,9 @@ class RoomService(object):
         connection, closed_client_id = db.run_in_transaction(needs_transaction)
 
         if closed_client_id:
-            channel.send_message(
-                closed_client_id, 
-                '{"event": "closed", "reason": "duplicated"}'
-            )
+            _send_event(closed_client_id, {
+                "event": "closed", "reason": "duplicated"
+            })
         else:
             # Don't notify until set_name finished
             # with current (broken) protocol.
@@ -94,16 +105,8 @@ class RoomService(object):
         return connections
 
     def notify_all(self, event):
-        event_json = django.utils.simplejson.dumps(event)
-
         for connection in self.get_connections():
-            try:
-                channel.send_message(
-                    connection.client_id, 
-                    event_json
-                )
-            except channel.InvalidChannelClientIdError:
-                pass  # may be an expired client ID.
+            _send_event(connection.client_id, event)
 
     def say(self, user, saying):
         if user:
