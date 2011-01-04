@@ -40,21 +40,36 @@
          },
          addLog : function (timestamp, htmlMessage) {
              timestamp = timestamp || new Date();
+
+             // order by timestamp DESC
+             var shouldInsertAfter = null;
+             for (var i = 0; i < this.logs.length; i++) {
+                 if (timestamp > this.logs[i].timestamp) break;
+                 shouldInsertAfter = i;
+             }
+
              var id = "log-" + timestamp.getTime() + "-" + 
                       Math.floor(Math.random() * 1000);
              var timestampStr = formatTimestamp(timestamp);
-             $("#logs").prepend([
+             var htmlLog = [
                  '<div id="', id, '">', timestampStr, "<br>", 
                  htmlMessage, "<hr>", "</div>"
-             ].join(""));
-
-             this.logs.unshift({
+             ].join("");
+             var elemLog = {
                  timestamp : timestamp,
-                 elem : $("#" + id)
-             });
+                 id : id
+             };
+             if (shouldInsertAfter == null) {
+                 // Insert at first (It may be the first log.)
+                 $("#logs").prepend(htmlLog);
+                 this.logs.unshift(elemLog);
+             } else {
+                 $("#" + this.logs[shouldInsertAfter].id).after(htmlLog);
+                 this.logs.splice(shouldInsertAfter + 1, 0, elemLog);
+             }
 
              while (this.logs.length > this.logSize) { (function (log) {
-                 log.elem.remove();
+                 $("#" + log.id).remove();
              })(this.logs.pop()); }
          },
          openSocket : function () {
