@@ -66,7 +66,9 @@ class RoomService(object):
         token = channel.create_channel(client_id)
 
         def needs_transaction():
-            cur_conn = model.RoomConnection.get_by_room_and_user(self.room, user)
+            cur_conn = model.RoomConnection.get_by_room_and_user(
+                self.room, user
+            )
 
             closed_client_id = None
             if cur_conn:
