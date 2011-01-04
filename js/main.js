@@ -82,7 +82,9 @@
                      $.post(self.room_id + "/ping"); 
                  }, 1000 * self.pingInterval);
 
-                 $.post(self.room_id + "/request_recent_logs");
+                 $.post(self.room_id + "/request_recent_logs", {
+                     count : self.logSize
+                 });
 
                  self.onopen();
              };

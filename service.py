@@ -45,6 +45,8 @@ def _send_event(client_id, event):
         loging.warn(e)
 
 class RoomService(object):
+    RECENT_LOG_MAX = 100
+
     def __init__(self, room):
         self.room = room
 
@@ -52,15 +54,18 @@ class RoomService(object):
         seed = user.user_id() + ' ' + datetime.datetime.now().isoformat()
         return hashlib.sha1(seed).hexdigest()
 
-    def send_recent_events(self, user):
+    def send_recent_events(self, user, count=None):
         """Send events in data store to user.
 
            Some last Log's instances are sent.
         """
+        if count is None or count > self.RECENT_LOG_MAX: 
+            count = self.RECENT_LOG_MAX
+
         connection = model.RoomConnection.get_by_room_and_user(self.room, user)
 
         room_logs = model.Log.all().filter("room =", self.room)
-        for log in room_logs.order("-date").fetch(20):
+        for log in room_logs.order("-date").fetch(count):
             _send_event(connection.client_id, _log_to_event(log))
 
     def connect(self, user):

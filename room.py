@@ -99,7 +99,9 @@ class SendRecentLogs(RoomBase):
         user = self.get_user()
 
         room_service = service.RoomService(room)
-        room_service.send_recent_events(user)
+        room_service.send_recent_events(
+            user, count=int(self.request.get("count"))
+        )
 
         self.response.out.write("OK\n")
 
