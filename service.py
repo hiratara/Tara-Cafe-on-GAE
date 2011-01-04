@@ -104,7 +104,7 @@ class RoomService(object):
 
         self.notify_all({
             "event"  : "said",
-            "from"   : nickname or '[System]',
+            "from"   : nickname,
             "content" : saying,
             "timestamp" : log.date.strftime("%d %b, %Y %H:%M:%S GMT"),
         })

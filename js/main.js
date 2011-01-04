@@ -88,7 +88,7 @@
                  if (data.event == "said") {
                      var timestamp = new Date(data.timestamp);
 
-                     if (data.from == "[System]") {
+                     if (data.from == null) {
                          self.addLog(timestamp, [
                              '<span style="color: #ff0;">', 
                              esc(data.content), 
