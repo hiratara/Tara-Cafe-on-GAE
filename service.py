@@ -97,8 +97,6 @@ class RoomService(object):
             # self.notify_all({"event" : "member_changed"})
             pass
 
-        self._send_recent_events(connection.client_id)
-
         return connection
 
     def get_connections(self):
@@ -149,6 +147,8 @@ class RoomService(object):
             # XXX set_name means entering this room 
             #     in current (broken) protocol
             self.say(None, u"%sさんが、いらっしゃいました。" % new_name)
+            # FIXME: If you reconnect the room, you won't get old logs.
+            self._send_recent_events(connection.client_id)
 
         self.notify_all({"event" : "member_changed"})
 
